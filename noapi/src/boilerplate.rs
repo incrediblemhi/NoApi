@@ -108,7 +108,8 @@ noapi-functions = "0.1.0"
     fs::write(project_path.join("tsconfig.node.json"), TSCONFIG_NODE)?;
     fs::write(project_path.join("vite.config.ts"), VITE_CONFIG)?;
 
-    println!("Boilerplate generated at {:?}", project_path);
+    println!("New NoApi project generated at {:?}", project_path);
+
     Ok(())
 }
 

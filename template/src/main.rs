@@ -9,6 +9,12 @@ use noapi_functions::{generate_routes_from_folder, rust_to_typescript_functons};
 
 const STATIC_DIR: &str = "./src/static";
 
+#[derive(serde::Serialize, Debug)]
+pub struct User {
+    pub email: String,
+    pub password: String,
+}
+
 #[tokio::main]
 async fn main() {
     rust_to_typescript_functons("./src/functions.rs", "./functions.ts");
