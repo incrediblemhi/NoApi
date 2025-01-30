@@ -53,12 +53,12 @@ tokio = {{version = "1.43.0", features = ["full"]}}
 tower = "0.5.2"
 tower-http = {{ version = "0.6.2", features = ["fs"] }}
 regex = "1.11.1"
-noapi-functions = {{ path = "../noapi-functions" }}
+noapi-functions = "0.1.0"
 serde = {{version = "1.0.217", features = ["derive"]}}
 serde_json = "1.0.138"
 
 [build-dependencies]
-noapi-functions = {{ path = "../noapi-functions" }}
+noapi-functions = "0.1.0"
 "#,
         project_name
     );
