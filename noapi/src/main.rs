@@ -30,7 +30,7 @@ fn main() {
                 .about("Installs dependencies")
         )
         .subcommand(
-            Command::new("run")
+            Command::new("runserver")
             .short_flag('r')
                 .about("Runs your project")
         )
@@ -48,7 +48,7 @@ fn main() {
         run_install_command();
     }
 
-    if let Some(_run_matches) = matches.subcommand_matches("run") {
+    if let Some(_run_matches) = matches.subcommand_matches("runserver") {
         run_install_command();
         run_start_command();
     }
