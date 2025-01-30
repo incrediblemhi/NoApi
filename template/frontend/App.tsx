@@ -1,21 +1,22 @@
-import { hello } from "@functions";
+import { add } from "@functions";
 import { useState } from "react";
 
 function App() {
-  let [name, setName] = useState(0);
+  let [result, setResult] = useState(0);
+  let [num, setNum] = useState(0);
 
   return (
     <>
       <main>
         <h1
           onClick={() => {
-            hello(1.555555, 1.5).then((res) => {
-              setName(res);
+            add(num, result).then((res) => {
+              setResult(res);
             });
           }}
           className="font-semibold text-2xl"
         >
-          {name}
+          {result}
         </h1>
       </main>
     </>

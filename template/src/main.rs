@@ -9,25 +9,6 @@ use noapi_functions::{generate_routes_from_folder, rust_to_typescript_functons};
 
 const STATIC_DIR: &str = "./src/static";
 
-#[macro_export]
-macro_rules! create_router {
-    ($(($path:expr, $handler:expr)),*) => {{
-
-        let mut router = Router::new();
-        $(
-            // Add route without trailing slash
-            router = router.route($path, get($handler));
-            // Add route with trailing slash (if the path doesn't already end with a slash)
-            if !$path.ends_with('/') {
-                let path_with_slash = format!("{}/", $path);
-                router = router.route(&path_with_slash, get($handler));
-            }
-        )*
-
-        router
-    }};
-}
-
 #[tokio::main]
 async fn main() {
     rust_to_typescript_functons("./src/functions.rs", "./functions.ts");
