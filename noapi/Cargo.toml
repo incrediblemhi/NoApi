@@ -1,0 +1,18 @@
+[package]
+name = "noapi"
+version = "0.1.0"
+edition = "2021"
+authors = ["Kelvin Osei <incrediblemhi2022@gmail.com>"]
+description = "Perfect web framework cli tool."
+homepage = "https://example.com/my_cli_tool"
+repository = "https://github.com/username/my_cli_tool"
+license = "MIT"
+
+[dependencies]
+clap = "4.5.27"
+
+[lib]
+crate-type = ["bin"]
+
+[profile.release]
+opt-level = 3
