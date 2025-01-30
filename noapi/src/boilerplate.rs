@@ -1,3 +1,5 @@
+use std::{fs, path::Path};
+
 pub fn generate_boilerplate(project_name: &str) -> std::io::Result<()> {
     let project_path = Path::new(project_name);
 
@@ -12,7 +14,7 @@ pub fn generate_boilerplate(project_name: &str) -> std::io::Result<()> {
 
     // Create HTML file
 
-    fs::write(project_path.join("static").join("index.html"), index_html)?;
+    fs::write(project_path.join("static").join("index.html"), INDEX_HTML)?;
 
     // Create other necessary files (e.g., CSS, JS)
     let style_css = "body { font-family: Arial, sans-serif; }";

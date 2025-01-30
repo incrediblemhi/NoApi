@@ -2,6 +2,13 @@
 name = "noapi-functions"
 version = "0.1.0"
 edition = "2021"
+authors = ["Kelvin Osei <incrediblemhi2022@gmail.com>"]
+description = "Functions for the noapi framework"
+homepage = "https://github.com/incrediblemhi/NoApi/tree/main/noapi"
+repository = "https://github.com/incrediblemhi/NoApi/tree/main/noapi"
+license = "MIT"
+keywords = ["webdev", "react", "axum", "full-stack"]
+categories = ["web-programming"]
 
 [dependencies]
 axum = "0.8.1"
@@ -10,3 +17,5 @@ tokio = {version = "1.43.0", features = ["full"]}
 tower = "0.5.2"
 tower-http = { version = "0.6.2", features = ["fs"] }
 regex = "1.11.1"
+
+

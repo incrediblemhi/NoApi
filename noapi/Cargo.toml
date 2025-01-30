@@ -3,16 +3,13 @@ name = "noapi"
 version = "0.1.0"
 edition = "2021"
 authors = ["Kelvin Osei <incrediblemhi2022@gmail.com>"]
-description = "Perfect web framework cli tool."
-homepage = "https://example.com/my_cli_tool"
-repository = "https://github.com/username/my_cli_tool"
+description = "A Rust fullstack web framework [Axum + React], with the concept of Rust server actions, utilizes the type safety of Rust and TypeScript to make calls to server without APIs."
+homepage = "https://github.com/incrediblemhi/NoApi/tree/main/noapi"
+repository = "https://github.com/incrediblemhi/NoApi/tree/main/noapi"
 license = "MIT"
+keywords = ["webdev", "react", "axum", "full-stack"]
+categories = ["web-programming"]
 
 [dependencies]
 clap = "4.5.27"
 
-[lib]
-crate-type = ["bin"]
-
-[profile.release]
-opt-level = 3
