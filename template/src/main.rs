@@ -3,11 +3,8 @@ pub mod handlers;
 
 use handlers::create_router;
 use listenfd::ListenFd;
+use noapi_functions::build_functions::cargo_doc_path;
 use tokio::net::TcpListener;
-// imports from cargo spaces
-use noapi_functions::{generate_routes_from_folder, rust_to_typescript_functons};
-
-const STATIC_DIR: &str = "./src/static";
 
 #[derive(serde::Serialize, Debug)]
 pub struct User {
@@ -17,11 +14,9 @@ pub struct User {
 
 #[tokio::main]
 async fn main() {
-    rust_to_typescript_functons("./src/functions.rs", "./functions.ts");
-
     let app = create_router();
 
-    let app = generate_routes_from_folder(STATIC_DIR, app);
+    println!("{}", cargo_doc_path().as_path().to_str().unwrap());
 
     let mut listenfd = ListenFd::from_env();
     let listener = match listenfd.take_tcp_listener(0).unwrap() {

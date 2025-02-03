@@ -1,6 +1,6 @@
 [package]
 name = "noapi"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Kelvin Osei <incrediblemhi2022@gmail.com>"]
 description = "A Rust fullstack web framework [Axum + React], with the concept of Rust server actions, utilizes the type safety of Rust and TypeScript to make calls to server without APIs."
@@ -12,4 +12,5 @@ categories = ["web-programming"]
 
 [dependencies]
 clap = "4.5.27"
+regex = "1.11.1"
 

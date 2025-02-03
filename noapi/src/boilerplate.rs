@@ -56,6 +56,7 @@ regex = "1.11.1"
 noapi-functions = "0.1.0"
 serde = {{version = "1.0.217", features = ["derive"]}}
 serde_json = "1.0.138"
+tower-livereload = "0.9.6"
 
 [build-dependencies]
 noapi-functions = "0.1.0"
@@ -120,18 +121,19 @@ pub mod handlers;
 use handlers::create_router;
 use listenfd::ListenFd;
 use tokio::net::TcpListener;
+use tower_livereload::LiveReloadLayer;
 // imports from cargo spaces
-use noapi_functions::{generate_routes_from_folder, rust_to_typescript_functons};
+use noapi_functions::generate_routes_from_folder;
 
 const STATIC_DIR: &str = "./src/static";
 
 #[tokio::main]
 async fn main() {
-    rust_to_typescript_functons("./src/functions.rs", "./functions.ts");
-
     let app = create_router();
 
     let app = generate_routes_from_folder(STATIC_DIR, app);
+
+    app.layer(LiveReloadLayer::new());
 
     let mut listenfd = ListenFd::from_env();
     let listener = match listenfd.take_tcp_listener(0).unwrap() {

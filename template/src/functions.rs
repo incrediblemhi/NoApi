@@ -1,4 +1,4 @@
-use template::User;
+use crate::User;
 
 pub fn add(email: String, password: String) -> User {
     User { email, password }
