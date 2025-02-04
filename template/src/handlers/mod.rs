@@ -6,8 +6,8 @@ use serde_json::json;
 use tower_http::services::ServeDir;
 use tower_livereload::LiveReloadLayer;
 
-async fn add_handler(Json((email,password)): Json<(String,String)>) -> impl IntoResponse {
-    let response = functions::add(email,password);
+async fn add_handler(Json((email,password,_username)): Json<(String,String,String)>) -> impl IntoResponse {
+    let response = functions::add(email,password,_username);
     Json(json!(response))
 }
 

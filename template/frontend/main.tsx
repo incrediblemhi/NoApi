@@ -31,8 +31,11 @@ const routes = Object.keys(ROUTES).map((route) => {
 });
 
 const AppRoutes = () => {
-  const App: React.ComponentType<{ children?: React.ReactNode }> =
-    preserved["_app"] || Fragment;
+  const App: React.ComponentType<{ children?: React.ReactNode }> = ({
+    children,
+  }) => {
+    return <main>{children}</main>;
+  };
   const NotFound = preserved["404"] || Fragment;
 
   return (

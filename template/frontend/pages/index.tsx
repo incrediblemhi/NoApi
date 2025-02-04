@@ -7,7 +7,7 @@ function App() {
       <main>
         <h1
           onClick={() => {
-            add("kelvin", "kelvin").then((_res) => {});
+            add("kelvin", "kelvin", "osei2323").then((_res) => {});
           }}
           className="font-semibold text-2xl"
         >

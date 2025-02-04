@@ -1,9 +1,11 @@
 pub mod functions;
 pub mod handlers;
 
+use std::fs;
+
 use handlers::create_router;
 use listenfd::ListenFd;
-use noapi_functions::build_functions::cargo_doc_path;
+use noapi_functions::struct_extractor::extract_struct_def;
 use tokio::net::TcpListener;
 
 #[derive(serde::Serialize, Debug)]
@@ -16,7 +18,15 @@ pub struct User {
 async fn main() {
     let app = create_router();
 
-    println!("{}", cargo_doc_path().as_path().to_str().unwrap());
+    let content = fs::read_to_string(&format!(
+        "{}/{}",
+        env!("CARGO_MANIFEST_DIR"),
+        "src/functions.rs"
+    ))
+    .expect("Failed to read Rust file");
+    let use_statements = extract_struct_def("crate::User".to_string(), &content);
+
+    println!("{:#?}", use_statements);
 
     let mut listenfd = ListenFd::from_env();
     let listener = match listenfd.take_tcp_listener(0).unwrap() {

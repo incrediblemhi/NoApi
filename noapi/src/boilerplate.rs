@@ -18,10 +18,12 @@ pub fn generate_boilerplate(project_name: &str) -> std::io::Result<()> {
     "@tailwindcss/vite": "^4.0.0",
     "axios": "^1.7.9",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.1.5"
 }},
   "devDependencies": {{
     "@eslint/js": "^9.17.0",
+    "@types/node": "^22.13.0",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
@@ -59,7 +61,7 @@ serde_json = "1.0.138"
 tower-livereload = "0.9.6"
 
 [build-dependencies]
-noapi-functions = "0.1.0"
+noapi-functions = "0.1.1"
 "#,
         project_name
     );
@@ -70,6 +72,7 @@ noapi-functions = "0.1.0"
     fs::create_dir_all(project_path.join("src"))?;
     fs::create_dir_all(project_path.join("src").join("handlers"))?;
     fs::create_dir_all(project_path.join("frontend"))?;
+    fs::create_dir_all(project_path.join("frontend").join("pages"))?;
 
     // src files
     fs::write(project_path.join("src").join("main.rs"), MAIN_RS)?;
@@ -86,13 +89,25 @@ noapi-functions = "0.1.0"
     )?;
 
     // frontend files
-    fs::write(project_path.join("frontend").join("App.tsx"), APP_TSX)?;
     fs::write(project_path.join("frontend").join("index.css"), "")?;
     fs::write(project_path.join("frontend").join("index.html"), INDEX_HTML)?;
     fs::write(project_path.join("frontend").join("main.tsx"), MAIN_TSX)?;
     fs::write(
         project_path.join("frontend").join("vite-env.d.ts"),
         VITE_ENV,
+    )?;
+
+    // frontend/pages files
+    fs::write(
+        project_path
+            .join("frontend")
+            .join("pages")
+            .join("index.tsx"),
+        INDEX_TSX,
+    )?;
+    fs::write(
+        project_path.join("frontend").join("pages").join("404.tsx"),
+        ERROR_TSX,
     )?;
 
     // root files
@@ -157,7 +172,7 @@ pub fn add(num1: u32, num2: u32) -> u32 {
 }
 "#;
 
-const APP_TSX: &str = r#"
+const INDEX_TSX: &str = r#"
 import { add } from "@functions";
 import { useState } from "react";
 
@@ -187,6 +202,19 @@ export default App;
 
 "#;
 
+const ERROR_TSX: &str = r#"
+const NotFoundPage = () => {
+  return (
+    <div>
+      <h1>404 - Page Not Found</h1>
+      <p>Sorry, the page you are looking for does not exist.</p>
+    </div>
+  );
+};
+
+export default NotFoundPage;
+"#;
+
 const INDEX_HTML: &str = r#"
 <!DOCTYPE html>
 <html lang="en">
@@ -207,11 +235,60 @@ const MAIN_TSX: &str = r#"
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import App from "./App.tsx";
+import { BrowserRouter } from "react-router-dom";
+import React, { Fragment } from "react";
+import { Routes, Route } from "react-router-dom";
+
+type Module = { default: React.ComponentType };
+
+const PRESERVED = import.meta.glob("/pages/(_app|404).tsx", {
+  eager: true,
+}) as Record<string, Module>;
+
+const ROUTES = import.meta.glob("/pages/**/[a-z[]*.tsx", {
+  eager: true,
+}) as Record<string, Module>;
+
+const preserved = Object.keys(PRESERVED).reduce((acc, file) => {
+  const key = file.replace(/\/pages\/|\.tsx$/g, "");
+  acc[key] = PRESERVED[file].default;
+  return acc;
+}, {} as Record<string, React.ComponentType>);
+
+const routes = Object.keys(ROUTES).map((route) => {
+  const path = route
+    .replace(/\/pages|index|\.tsx$/g, "")
+    .replace(/\[\.{3}.+\]/, "*")
+    .replace(/\[(.+)\]/, ":$1");
+
+  return { path, component: ROUTES[route].default };
+});
+
+const AppRoutes = () => {
+  const App: React.ComponentType<{ children?: React.ReactNode }> = ({
+    children,
+  }) => {
+    return <main>{children}</main>;
+  };
+  const NotFound = preserved["404"] || Fragment;
+
+  return (
+    <App>
+      <Routes>
+        {routes.map(({ path, component: Component }) => (
+          <Route key={path} path={path} element={<Component />} />
+        ))}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </App>
+  );
+};
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   </StrictMode>
 );
 "#;
@@ -254,10 +331,15 @@ package-lock.json
 "#;
 
 const BUILD_RS: &str = r#"
-use noapi_functions::{build_frontend, rust_functions_to_axum_handlers};
+use noapi_functions::build_functions::{
+    build_frontend, rust_functions_to_axum_handlers, rust_to_typescript_functons,
+};
 
 fn main() {
+    println!("cargo:rerun-if-changed=./src/functions.rs");
     rust_functions_to_axum_handlers("./src/functions.rs", "./src/handlers");
+    println!("cargo:rerun-if-changed=./src/functions.rs");
+    rust_to_typescript_functons("./src/functions.rs", "./functions.ts");
     println!("cargo:rerun-if-changed=frontend");
     build_frontend().unwrap()
 }
@@ -383,6 +465,7 @@ const VITE_CONFIG: &str = r#"
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -390,10 +473,11 @@ export default defineConfig({
   root: "frontend",
   build: {
     outDir: "..//src/static",
+    emptyOutDir: true,
   },
   resolve: {
     alias: {
-      "@functions": "./functions.ts",
+      "@functions": path.resolve(__dirname, "functions.ts"),
     },
   },
 });
