@@ -18,9 +18,9 @@ pub fn create_router() -> Router {
 router = router.nest_service(
                         "/assets",
                         ServeDir::new(&format!("{}/{}", env!("CARGO_MANIFEST_DIR"), "src/static/assets")),
-                    );let router = router.layer(LiveReloadLayer::new());
+                    );
 
-       let router = router.fallback(get({
+       router = router.fallback(get({
         match fs::read_to_string(format!(
             "{}/{}",
             env!("CARGO_MANIFEST_DIR"),
@@ -30,5 +30,6 @@ router = router.nest_service(
             Err(_) => Html("Error reading file".to_string()),
         }
     }));
+router = router.layer(LiveReloadLayer::new());
 return router;
 }

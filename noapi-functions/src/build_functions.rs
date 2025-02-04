@@ -82,11 +82,10 @@ pub fn rust_functions_to_axum_handlers(input_path: &str, output_path: &str) {
     axum_content.push_str("router = router.nest_service(
                         \"/assets\",
                         ServeDir::new(&format!(\"{}/{}\", env!(\"CARGO_MANIFEST_DIR\"), \"src/static/assets\")),
-                    );");
-    axum_content.push_str("let router = router.layer(LiveReloadLayer::new());\n");
+                    );\n");
     axum_content.push_str(
         "
-       let router = router.fallback(get({
+       router = router.fallback(get({
         match fs::read_to_string(format!(
             \"{}/{}\",
             env!(\"CARGO_MANIFEST_DIR\"),
@@ -97,6 +96,7 @@ pub fn rust_functions_to_axum_handlers(input_path: &str, output_path: &str) {
         }
     }));\n",
     );
+    axum_content.push_str("router = router.layer(LiveReloadLayer::new());\n");
     axum_content.push_str("return router;");
     axum_content.push_str("\n}\n");
 
@@ -216,12 +216,12 @@ pub fn rust_to_typescript_functons<P: AsRef<Path>>(
 
         // Add to TypeScript content
         ts_content.push_str(&format!(
-            "export async function {}({}): Promise<{}>{{\nlet data:any = [{}];\n let response = await axios.post('{}', data);\n return response.data;\n}}\n\n",
+            "export async function {}({}): Promise<{}>{{\nlet base_url = window.origin;\nlet data:any = [{}];\n let response = await axios.post('`${{base_url}}/{}`', data);\n return response.data;\n}}\n\n",
             function_name,
             ts_params.join(", "),
             ts_return_type,
             ts_params_without_types.join(", "),
-            format!("http://localhost:3000/{}",function_name),
+            function_name,
         ));
     }
 
