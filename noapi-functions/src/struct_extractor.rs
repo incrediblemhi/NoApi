@@ -20,7 +20,11 @@ fn cargo_doc_path() -> PathBuf {
     PathBuf::from(workspace_root).join("target/doc")
 }
 
-pub fn extract_struct_def(struct_name: String, content: &str) -> Option<String> {
+pub fn extract_struct_def(
+    struct_name: String,
+    content: &str,
+    project_name: &str,
+) -> Option<String> {
     let use_statements = extract_use_statements(&content);
     let parts: Vec<&str> = struct_name.split("::").collect();
     let mut use_statement = String::new();
@@ -54,7 +58,7 @@ pub fn extract_struct_def(struct_name: String, content: &str) -> Option<String> 
         struct_path = parts.join("/");
     }
 
-    struct_path = struct_path.replace("crate", "template"); //env!("CARGO_PKG_NAME")
+    struct_path = struct_path.replace("crate", project_name);
 
     let doc_path = cargo_doc_path().join(format!("{}/struct.{}.html", struct_path, struct_name));
 
@@ -86,6 +90,7 @@ pub fn extract_struct_def(struct_name: String, content: &str) -> Option<String> 
                         parts[1].trim().trim_end_matches(','),
                         &vec![],
                         content,
+                        project_name,
                     );
 
                     format!("   {}: {};", field_name, field_type)
@@ -97,7 +102,7 @@ pub fn extract_struct_def(struct_name: String, content: &str) -> Option<String> 
 
         ts_content.push_str(&format!(
             "{{\n{}\n}}",
-            ts_fields.join("\n").replace("pub", "").trim()
+            ts_fields.join("\n").replace("pub", "")
         ));
     }
 

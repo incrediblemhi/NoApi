@@ -6,15 +6,15 @@ use serde_json::json;
 use tower_http::services::ServeDir;
 use tower_livereload::LiveReloadLayer;
 
-async fn add_handler(Json((email,password,_username)): Json<(String,String,String)>) -> impl IntoResponse {
-    let response = functions::add(email,password,_username);
+async fn create_user_handler(Json((email,password,_username)): Json<(String,String,String)>) -> impl IntoResponse {
+    let response = functions::create_user(email,password,_username);
     Json(json!(response))
 }
 
 
 pub fn create_router() -> Router {
     let mut router = Router::new()
-    .route("/add", post(add_handler));
+    .route("/create_user", post(create_user_handler));
 router = router.nest_service(
                         "/assets",
                         ServeDir::new(&format!("{}/{}", env!("CARGO_MANIFEST_DIR"), "src/static/assets")),

@@ -2,8 +2,7 @@ use std::{fs, path::Path};
 
 pub fn generate_boilerplate(project_name: &str) -> std::io::Result<()> {
     let package_json: &str = &format!(
-        r#"
-    {{
+        r#"{{
   "name": "{}",
   "private": true,
   "version": "0.0.0",
@@ -42,8 +41,7 @@ pub fn generate_boilerplate(project_name: &str) -> std::io::Result<()> {
     );
 
     let cargo_toml: &str = &format!(
-        r#"
-[package]
+        r#"[package]
 name = "{}"
 version = "0.1.0"
 edition = "2021"
@@ -89,7 +87,7 @@ noapi-functions = "0.1.1"
     )?;
 
     // frontend files
-    fs::write(project_path.join("frontend").join("index.css"), "")?;
+    fs::write(project_path.join("frontend").join("index.css"), INDEX_CSS)?;
     fs::write(project_path.join("frontend").join("index.html"), INDEX_HTML)?;
     fs::write(project_path.join("frontend").join("main.tsx"), MAIN_TSX)?;
     fs::write(
@@ -129,26 +127,16 @@ noapi-functions = "0.1.1"
     Ok(())
 }
 
-const MAIN_RS: &str = r#"
-pub mod functions;
+const MAIN_RS: &str = r#"pub mod functions;
 pub mod handlers;
 
 use handlers::create_router;
 use listenfd::ListenFd;
 use tokio::net::TcpListener;
-use tower_livereload::LiveReloadLayer;
-// imports from cargo spaces
-use noapi_functions::generate_routes_from_folder;
-
-const STATIC_DIR: &str = "./src/static";
 
 #[tokio::main]
 async fn main() {
     let app = create_router();
-
-    let app = generate_routes_from_folder(STATIC_DIR, app);
-
-    app.layer(LiveReloadLayer::new());
 
     let mut listenfd = ListenFd::from_env();
     let listener = match listenfd.take_tcp_listener(0).unwrap() {
@@ -163,47 +151,103 @@ async fn main() {
 
     axum::serve(listener, app).await.unwrap();
 }
-
 "#;
 
-const FUNCTIONS_RS: &str = r#"
-pub fn add(num1: u32, num2: u32) -> u32 {
-    num1 + num2
+const FUNCTIONS_RS: &str = r#"#[derive(serde::Serialize, Debug)]
+pub struct User {
+    pub email: String,
+    pub password: String,
+}
+
+pub fn create_user(email: String, password: String, _username: String) -> User {
+    User { email, password }
 }
 "#;
 
-const INDEX_TSX: &str = r#"
-import { add } from "@functions";
-import { useState } from "react";
+const INDEX_TSX: &str = r#"import { useRef } from "react";
+import { create_user } from "@functions";
 
-function App() {
-  let [result, setResult] = useState(0);
-  let [num, setNum] = useState(0);
+const App = () => {
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const username = usernameRef.current?.value;
+    const email = emailRef.current?.value;
+    const password = passwordRef.current?.value;
+
+    if (username && email && password) {
+      create_user(email, password, username)
+        .then((res) => {
+          console.log("User created:", res);
+        })
+        .catch((err) => {
+          console.error("Error creating user:", err);
+        });
+    }
+  };
 
   return (
-    <>
-      <main>
-        <h1
-          onClick={() => {
-            add(num, result).then((res) => {
-              setResult(res);
-            });
-          }}
-          className="font-semibold text-2xl"
+    <main className=" flex flex-row max-sm:flex-col font-sans w-full h-screen">
+      <div className="flex flex-col w-1/2 max-sm:w-full text-center items-center justify-center bg-black">
+        <h1 className="text-xl ">What is going on here??</h1>
+        <br />
+        <p className="w-full max-w-sm min-w-[200px]">
+          When you click on the "create user" button, the typescript fuction
+          "create_user()" calls a corresponding rust function also called
+          "create_user()" found in the src/functions.rs and passes the
+          parameters and the response all in their correct types. <br />
+          What this means is that you can create rust functions in the
+          src/functions.rs file and directly import them into your typescript
+          app, all without doing any extra work of creating APIs or validating
+          its data and return types. <br />
+          It just works.
+        </p>
+      </div>
+      <div className="flex flex-col items-center justify-center w-1/2 max-sm:w-full">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col items-center justify-center w-full max-w-sm min-w-[200px] space-y-3"
         >
-          {result}
-        </h1>
-      </main>
-    </>
+          <h6>Create A User</h6>
+          <input
+            type="text"
+            name="username"
+            ref={usernameRef}
+            placeholder="Username"
+            required
+            className="w-full bg-transparent text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+          />
+          <input
+            type="email"
+            name="email"
+            ref={emailRef}
+            placeholder="Email"
+            required
+            className="w-full bg-transparent text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+          />
+          <input
+            type="password"
+            name="password"
+            ref={passwordRef}
+            placeholder="Password"
+            required
+            className="w-full bg-transparent text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+          />
+          <button type="submit">Create User</button>
+        </form>
+      </div>
+    </main>
   );
-}
+};
 
 export default App;
-
 "#;
 
-const ERROR_TSX: &str = r#"
-const NotFoundPage = () => {
+const ERROR_TSX: &str = r#"const NotFoundPage = () => {
   return (
     <div>
       <h1>404 - Page Not Found</h1>
@@ -215,8 +259,7 @@ const NotFoundPage = () => {
 export default NotFoundPage;
 "#;
 
-const INDEX_HTML: &str = r#"
-<!DOCTYPE html>
+const INDEX_HTML: &str = r#"<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -225,14 +268,79 @@ const INDEX_HTML: &str = r#"
     <title>NoApi Project</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root" class="w-full min-h-[100vh]"></div>
     <script type="module" src="main.tsx"></script>
   </body>
 </html>
 "#;
 
-const MAIN_TSX: &str = r#"
-import { StrictMode } from "react";
+const INDEX_CSS: &str = r#"@import "tailwindcss";
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+}
+  a:hover {
+    color: #747bff;
+}
+  button {
+    background-color: #f9f9f9;
+}
+}
+"#;
+
+const MAIN_TSX: &str = r#"import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { BrowserRouter } from "react-router-dom";
@@ -293,12 +401,9 @@ createRoot(document.getElementById("root")!).render(
 );
 "#;
 
-const VITE_ENV: &str = r#"
-/// <reference types="vite/client" />
-"#;
+const VITE_ENV: &str = r#"/// <reference types="vite/client" />"#;
 
-const GITIGNORE: &str = r#"
-# Logs
+const GITIGNORE: &str = r#"# Logs
 logs
 *.log
 npm-debug.log*
@@ -330,8 +435,7 @@ Cargo.lock
 package-lock.json
 "#;
 
-const BUILD_RS: &str = r#"
-use noapi_functions::build_functions::{
+const BUILD_RS: &str = r#"use noapi_functions::build_functions::{
     build_frontend, rust_functions_to_axum_handlers, rust_to_typescript_functons,
 };
 
@@ -339,14 +443,17 @@ fn main() {
     println!("cargo:rerun-if-changed=./src/functions.rs");
     rust_functions_to_axum_handlers("./src/functions.rs", "./src/handlers");
     println!("cargo:rerun-if-changed=./src/functions.rs");
-    rust_to_typescript_functons("./src/functions.rs", "./functions.ts");
+    rust_to_typescript_functons(
+        "./src/functions.rs",
+        "./functions.ts",
+        env!("CARGO_PKG_NAME"),
+    );
     println!("cargo:rerun-if-changed=frontend");
     build_frontend().unwrap()
 }
 "#;
 
-const ESLINT_CONFIG: &str = r#"
-import js from "@eslint/js";
+const ESLINT_CONFIG: &str = r#"import js from "@eslint/js";
 import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
@@ -376,14 +483,12 @@ export default tseslint.config(
 );
 "#;
 
-const README: &str = r#"
-## NoApi Project
+const README: &str = r#"## NoApi Project
 
 This template provides a minimal setup to get started with NoApi.
 "#;
 
-const TAILWIND_CONFIG: &str = r#"
-module.exports = {
+const TAILWIND_CONFIG: &str = r#"module.exports = {
   content: ["./**/*.{ts,tsx}", "./frontend/**/*.{ts,tsx}"],
   theme: {
     extend: {},
@@ -392,8 +497,7 @@ module.exports = {
 };
 "#;
 
-const TSCONFIG_APP: &str = r#"
-{
+const TSCONFIG_APP: &str = r#"{
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2020",
@@ -424,8 +528,7 @@ const TSCONFIG_APP: &str = r#"
 }
 "#;
 
-const TSCONFIG: &str = r#"
-{
+const TSCONFIG: &str = r#"{
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
@@ -434,8 +537,7 @@ const TSCONFIG: &str = r#"
 }
 "#;
 
-const TSCONFIG_NODE: &str = r#"
-{
+const TSCONFIG_NODE: &str = r#"{
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "target": "ES2022",
@@ -461,8 +563,7 @@ const TSCONFIG_NODE: &str = r#"
 }
 "#;
 
-const VITE_CONFIG: &str = r#"
-import { defineConfig } from "vite";
+const VITE_CONFIG: &str = r#"import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";

@@ -1,11 +1,13 @@
 import axios from 'axios'
 
-export async function add(email: string, password: string, _username: string): Promise<{
-email: string;
-    password: string;
-}>{
+export interface User {
+     email: string;
+     password: string;
+}
+
+export async function create_user(email: string, password: string, _username: string): Promise<User>{
 let data:any = [email, password, _username];
- let response = await axios.post('http://localhost:3000/add', data);
+ let response = await axios.post('http://localhost:3000/create_user', data);
  return response.data;
 }
 

@@ -9,11 +9,7 @@ const NPM: &str = "npm.cmd";
 const NPM: &str = "npm";
 
 pub fn build_frontend() -> Result<(), Box<dyn std::error::Error>> {
-    let status = Command::new(NPM)
-        .arg("run")
-        .arg("build")
-        .arg("--emptyOutDir")
-        .status()?;
+    let status = Command::new(NPM).arg("run").arg("build").status()?;
 
     if !status.success() {
         return Err(format!(
@@ -115,6 +111,7 @@ pub fn rust_to_typescript_type(
     rust_type: &str,
     custom_types: &Vec<String>,
     content: &str,
+    project_name: &str,
 ) -> String {
     match rust_type {
         "i32" | "i64" | "u32" | "u64" | "f32" | "f64" => "number".to_string(),
@@ -123,14 +120,18 @@ pub fn rust_to_typescript_type(
         "Vec" => "Array<any>".to_string(),
         "Option" => "any | null".to_string(),
         _ if custom_types.contains(&rust_type.to_string()) => rust_type.to_string(),
-        _ => match extract_struct_def(rust_type.to_string(), content) {
+        _ => match extract_struct_def(rust_type.to_string(), content, project_name) {
             Some(ts_type) => ts_type,
             None => "any".to_string(),
         },
     }
 }
 
-pub fn rust_to_typescript_functons<P: AsRef<Path>>(input_path: P, output_path: P) {
+pub fn rust_to_typescript_functons<P: AsRef<Path>>(
+    input_path: P,
+    output_path: P,
+    project_name: &str,
+) {
     let content = fs::read_to_string(input_path).expect("Failed to read Rust file");
     let struct_regex = Regex::new(r"struct\s+(\w+)\s*\{([^}]*)\}").expect("Invalid struct regex");
     let function_regex =
@@ -155,6 +156,7 @@ pub fn rust_to_typescript_functons<P: AsRef<Path>>(input_path: P, output_path: P
                         parts[1].trim().trim_end_matches(','),
                         &custom_types,
                         &content,
+                        project_name,
                     );
                     format!("    {}: {};", field_name, field_type)
                 } else {
@@ -166,7 +168,7 @@ pub fn rust_to_typescript_functons<P: AsRef<Path>>(input_path: P, output_path: P
         ts_content.push_str(&format!(
             "export interface {} {{\n{}\n}}\n\n",
             struct_name,
-            ts_fields.join("\n")
+            ts_fields.join("\n").replace("pub", "")
         ));
     }
 
@@ -195,8 +197,12 @@ pub fn rust_to_typescript_functons<P: AsRef<Path>>(input_path: P, output_path: P
                             .push(format!("parseFloat({}.toString())", param_name.to_string())),
                         _ => ts_params_without_types.push(param_name.to_string()),
                     }
-                    let param_type =
-                        rust_to_typescript_type(parts[1].trim(), &custom_types, &content);
+                    let param_type = rust_to_typescript_type(
+                        parts[1].trim(),
+                        &custom_types,
+                        &content,
+                        project_name,
+                    );
                     format!("{}: {}", param_name, param_type)
                 } else {
                     "unknown: any".to_string()
@@ -205,7 +211,8 @@ pub fn rust_to_typescript_functons<P: AsRef<Path>>(input_path: P, output_path: P
             .collect();
 
         // Convert return type
-        let ts_return_type = rust_to_typescript_type(return_type, &custom_types, &content);
+        let ts_return_type =
+            rust_to_typescript_type(return_type, &custom_types, &content, project_name);
 
         // Add to TypeScript content
         ts_content.push_str(&format!(
