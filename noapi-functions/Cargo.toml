@@ -1,6 +1,6 @@
 [package]
 name = "noapi-functions"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Kelvin Osei <incrediblemhi2022@gmail.com>"]
 description = "Functions for the noapi framework"
