@@ -4,6 +4,14 @@
 
 A Rust fullstack web framework [Axum + React], with the concept of Rust server actions, utilizes the type safety of Rust and TypeScript to make calls to server without APIs.
 
+## Features
+
+- **Hot Reload** – Instant updates without restarting the server
+- **Type Syncing** – Seamless type safety between frontend & backend
+- **Rust Server Functions** – Call Rust functions directly from the frontend
+- **File-based Routing** – Simple and intuitive route management
+- **Fullstack (TypeScript + React + Rust + Axum)** – Right tool for the right job
+
 ## Get Started
 
 Install the CLI tool

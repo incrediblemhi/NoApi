@@ -216,7 +216,7 @@ pub fn rust_to_typescript_functons<P: AsRef<Path>>(
 
         // Add to TypeScript content
         ts_content.push_str(&format!(
-            "export async function {}({}): Promise<{}>{{\nlet base_url = window.origin;\nlet data:any = [{}];\n let response = await axios.post('`${{base_url}}/{}`', data);\n return response.data;\n}}\n\n",
+            "export async function {}({}): Promise<{}>{{\nlet base_url = window.origin;\nlet data:any = [{}];\n let response = await axios.post(`${{base_url}}/{}`, data);\n return response.data;\n}}\n\n",
             function_name,
             ts_params.join(", "),
             ts_return_type,
