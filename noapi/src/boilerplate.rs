@@ -51,12 +51,14 @@ axum = "0.8.1"
 listenfd = "1.0.2"
 tokio = {{version = "1.43.0", features = ["full"]}}
 tower = "0.5.2"
-tower-http = {{ version = "0.6.2", features = ["fs"] }}
+tower-http = {{ version = "0.6.2", features = ["fs", "trace"] }}
 regex = "1.11.1"
 noapi-functions = "0.1.0"
 serde = {{version = "1.0.217", features = ["derive"]}}
 serde_json = "1.0.138"
 tower-livereload = "0.9.6"
+tracing = "0.1.41"
+tracing-subscriber = {{version = "0.3.19", features = ["env-filter"]}}
 
 [build-dependencies]
 noapi-functions = "0.1.1"
@@ -133,10 +135,23 @@ pub mod handlers;
 use handlers::create_router;
 use listenfd::ListenFd;
 use tokio::net::TcpListener;
+use tower_http::trace::{self, TraceLayer};
+use tracing::Level;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
 async fn main() {
-    let app = create_router();
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
+    let mut app = create_router();
+
+    app = app.layer(
+        TraceLayer::new_for_http()
+            .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
+            .on_response(trace::DefaultOnResponse::new().level(Level::INFO)),
+    );
 
     let mut listenfd = ListenFd::from_env();
     let listener = match listenfd.take_tcp_listener(0).unwrap() {
@@ -146,8 +161,7 @@ async fn main() {
         }
         None => TcpListener::bind("127.0.0.1:3000").await.unwrap(),
     };
-
-    println!("listening on {}", listener.local_addr().unwrap());
+    tracing::info!("listening on {}", listener.local_addr().unwrap());
 
     axum::serve(listener, app).await.unwrap();
 }
