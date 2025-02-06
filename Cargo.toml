@@ -1,9 +1,0 @@
-[workspace]
-
-members = [
-    "noapi",
-    "noapi-functions",
-    "template",
-]
-
-resolver = "2"
