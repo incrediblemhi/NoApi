@@ -153,7 +153,115 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="chapter-1"><a class="header" href="#chapter-1">Chapter 1</a></h1>
+                        <p><img src="noapi.png" alt="Logo" /></p>
+<h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
+<p>NoApi is Rust fullstack web framework combines Axum and React, leveraging <strong>Rust Server Functions(RSFs)</strong> to enable seamless, type-safe communication between the frontend and backend. Instead of reinventing the frontend or backend, it focuses on improving how they interact by hiding API complexities while maintaining the robustness of Rust and TypeScript. It ensures that function calls between client and server feel natural, eliminating the need for manual API handling. Built as a CLI tool, it streamlines development by generating the necessary bindings and boilerplate, making fullstack development with Rust and React more efficient, intuitive, and secure through end-to-end type safety.</p>
+<h3 id="why-this-approach"><a class="header" href="#why-this-approach">Why this approach?</a></h3>
+<p>This tight integration between Rust and TypeScript simplifies development and reduces the risk of runtime errors.</p>
+<h3 id="features-include"><a class="header" href="#features-include">Features include:</a></h3>
+<ul>
+<li><strong>Hot Reload</strong> – Instant updates without restarting the server</li>
+<li><strong>Type Syncing</strong> – Seamless type safety between frontend &amp; backend</li>
+<li><strong>Rust Server Functions</strong> – Call Rust functions directly from the frontend</li>
+<li><strong>File-based Routing</strong> – Simple and intuitive route management</li>
+<li><strong>Fullstack (TypeScript + React + Rust + Axum)</strong> – Right tool for the right job</li>
+</ul>
+<h3 id="tech-stack"><a class="header" href="#tech-stack">Tech Stack</a></h3>
+<p><strong>Client:</strong> React, TypeScript, TailwindCSS</p>
+<p><strong>Server:</strong> Axum</p>
+<h3 id="license"><a class="header" href="#license">License</a></h3>
+<p>NoApi is under the <a href="https://choosealicense.com/licenses/mit/">MIT License</a>, making it free to use and modify for your own needs.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="installing-the-cli-tool"><a class="header" href="#installing-the-cli-tool">Installing the CLI tool</a></h1>
+<p>To install the CLI tool just run this command</p>
+<pre><code class="language-bash">  cargo install noapi
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="creating-a-new-project"><a class="header" href="#creating-a-new-project">Creating A New Project</a></h1>
+<h4 id="to-create-a-new-project"><a class="header" href="#to-create-a-new-project">To create a new project:</a></h4>
+<ul>
+<li>First install the CLI tool</li>
+<li>Then run the commands below in this order</li>
+</ul>
+<pre><code class="language-bash">  noapi new &lt;PROJECT_NAME&gt;
+</code></pre>
+<p>Install dependencies</p>
+<pre><code class="language-bash">  noapi install
+</code></pre>
+<p>Start the server</p>
+<pre><code class="language-bash">  noapi runserver
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="running-your-project"><a class="header" href="#running-your-project">Running your Project</a></h1>
+<p>To run your NoApi project run:</p>
+<pre><code class="language-bash">  noapi runserver
+</code></pre>
+<p><strong>NB:</strong> The dev server has <strong>hot reload</strong> enabled.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="frontend"><a class="header" href="#frontend">Frontend</a></h1>
+<p>All frontend files are located in the <strong>/frontend</strong> folder. This folder contains your React components, styles, and assets. When you <strong>run noapi runserver</strong>, the development server supports <strong>hot reloading</strong>. This means any changes you make to files in the /frontend folder will automatically update in the browser in real time, without requiring a manual refresh or server restart.</p>
+<p>The frontend is built with React, so you only need to write standard React code. Create components, use hooks, manage state, and style your app as usual. The setup handles the build process, allowing you to focus solely on development. No additional configuration is needed—just start coding.</p>
+<h3 id="nb"><a class="header" href="#nb">NB:</a></h3>
+<p>NoApi creates a production build everytime you make changes, so <strong>dev errors like unused variables will break your server</strong>, so either comment it out or use "_variableName"</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="routing"><a class="header" href="#routing">Routing</a></h1>
+<p>Routing is handled through file-based routing, which simplifies how you define and manage routes. All page files are located in the /frontend/pages folder. Each file or folder in this directory corresponds to a route in your application. For example:</p>
+<ul>
+<li>about.tsx or about/index.tsx will create a route for /about.</li>
+<li>contact.tsx will create a route for /contact.</li>
+</ul>
+<p>Dynamic routes are also supported using square brackets. For instance, a file named [id].tsx inside a folder like users will create a dynamic route such as /users/:id. This allows you to capture dynamic segments in the URL and use them in your components.</p>
+<p>Routing here is heavily inspired by <a href="https://nextjs.org/"><strong>nextjs</strong></a> and uses <a href="https://reactrouter.com/"><strong>react-router</strong></a> to create this magic.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="calling-rust-server-fuctions"><a class="header" href="#calling-rust-server-fuctions">Calling Rust Server Fuctions</a></h1>
+<p>With NoApi, calling Rust functions from your frontend is seamless. When you add functions to the src/functions.rs file, NoApi automatically generates TypeScript versions of these functions in the functions.ts file located in your project directory. This allows you to import and use these functions directly in your frontend code.</p>
+<p>Heres an example of calling a rust server function:</p>
+<h4 id="rust-code-functionsrs-"><a class="header" href="#rust-code-functionsrs-">Rust code( functions.rs )</a></h4>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn get_user(id:u32)-&gt;User{
+ ///
+}
+
+<span class="boring">}</span></code></pre></pre>
+<h4 id="typescript-code-your-frontend-"><a class="header" href="#typescript-code-your-frontend-">Typescript code( your frontend )</a></h4>
+<pre><code class="language-typescript">import { get_user } from "@functions";
+
+let id: number = 1;
+let user: User = await get_user(id);
+</code></pre>
+<p>NoApi handles the conversion between <strong>Rust and TypeScript types</strong>, ensuring that the data passed between the frontend and backend is type-safe and consistent. This eliminates the need for manual type definitions or additional configuration.</p>
+<p>For example, if you define a function in src/functions.rs, you can call it in your React components or other frontend logic as if it were a native TypeScript function.</p>
+<h3 id="why-this-approach-1"><a class="header" href="#why-this-approach-1">Why this approach?</a></h3>
+<p>This tight integration between Rust and TypeScript simplifies development and reduces the risk of runtime errors.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="backend"><a class="header" href="#backend">Backend</a></h1>
+<p>NoApi uses <a href="https://github.com/tokio-rs/axum"><strong>Axum</strong></a>, a powerful and efficient web framework for Rust, to run the backend server. The server logic is defined in the <strong>src/main.rs</strong> file, which serves as the entry point for your backend. Axum is designed for performance and flexibility, making it an excellent choice for building robust APIs and handling HTTP requests.</p>
+<p>If you're familiar with Axum, you can customize the server to suit your specific backend needs. The src/main.rs file is where you can middleware, and other server configurations. For example, you can add databases, modify server configuration, or integrate additional middleware for tasks like authentication, logging, or error handling.</p>
+<p>NoApi provides a solid foundation, but it doesn't lock you into a rigid structure. If you know enough Axum, you have full control over the backend. This makes it easy to extend the server's functionality or optimize it for your use case.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="functionsrs"><a class="header" href="#functionsrs">functions.rs</a></h1>
+<p>The src/functions.rs file is the heart of your backend in NoApi. This is where you define your <strong>Rust Server Functions (RSFs)</strong>, which are the functions that handle your backend logic. These functions can perform tasks like processing data, interacting with a database, or executing business logic.</p>
+<ul>
+<li>When you add or modify functions in <strong>src/functions.rs</strong>, NoApi automatically generates corresponding TypeScript definitions in the functions.ts file. This allows you to call these Rust functions directly from your frontend using TypeScript, with full type safety. For example, if you define a function get_user in src/functions.rs, you can import and use it in your frontend like this:</li>
+</ul>
+<h4 id="rust-code-functionsrs--1"><a class="header" href="#rust-code-functionsrs--1">Rust code( functions.rs )</a></h4>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn get_user(id:u32)-&gt;User{
+ ///
+}
+
+<span class="boring">}</span></code></pre></pre>
+<h4 id="typescript-code-your-frontend--1"><a class="header" href="#typescript-code-your-frontend--1">Typescript code( your frontend )</a></h4>
+<pre><code class="language-typescript">import { get_user } from "@functions";
+
+let id: number = 1;
+let user: User = await get_user(id);
+</code></pre>
+<p>NoApi also ensures that the types used in your Rust functions are correctly converted to TypeScript types, making communication between the frontend and backend seamless. This eliminates the need for manual type definitions or additional boilerplate code.</p>
+<h3 id="why-this-approach-2"><a class="header" href="#why-this-approach-2">Why this approach?</a></h3>
+<p>This tight integration between Rust and TypeScript simplifies development and reduces the risk of runtime errors.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="handers"><a class="header" href="#handers">Handers</a></h1>
+<p>The <strong>src/handlers/</strong> folder is a critical part of the NoApi architecture, responsible for managing communication between the frontend and backend. This folder contains auto-generated code that ensures seamless interaction between your Rust backend functions and the TypeScript frontend. Importantly, this folder should not be modified manually by the user.</p>
+<ul>
+<li>Every time you make changes to the src/functions.rs file, NoApi automatically regenerates the contents of the src/handlers/ folder. This ensures that the handlers stay in sync with your backend logic and TypeScript types. If you manually edit files in this folder, your changes will be overwritten during the next regeneration, or worse, they could introduce <strong>errors</strong> that break your application.</li>
+</ul>
+<p>The handlers act as a bridge, translating requests from the frontend into calls to your Rust functions and vice versa. They also handle type conversions between Rust and TypeScript, ensuring that data is correctly passed between the two layers.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="contributors"><a class="header" href="#contributors">Contributors</a></h1>
+<p>NoApi is currently created and managed by <a href="https://github.com/incrediblemhi">Kelvin Osei</a></p>
 
                     </main>
 
@@ -172,22 +280,6 @@
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script>
-            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
-            const socket = new WebSocket(wsAddress);
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
 
 
 
