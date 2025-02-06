@@ -46,7 +46,7 @@ Start the server
 
 ## Documentation
 
-[Documentation](https://docs.rs/noapi-functions)
+[The NoApi Book](https://incrediblemhi.github.io/NoApi/)
 
 ## Demo
 
