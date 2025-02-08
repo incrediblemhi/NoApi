@@ -1,6 +1,8 @@
 use std::{fs, path::Path};
 
-pub fn generate_boilerplate(project_name: &str, config: String) -> std::io::Result<()> {
+use crate::noapi_config::{Config, JsRuntime};
+
+pub fn generate_boilerplate(project_name: &str, config: Config) -> std::io::Result<()> {
     let package_json: &str = &format!(
         r#"{{
   "name": "{}",
@@ -111,19 +113,31 @@ noapi-functions = "0.1.1"
     )?;
 
     // root files
-    fs::write(project_path.join(".gitignore"), GITIGNORE)?;
-    fs::write(project_path.join("build.rs"), BUILD_RS)?;
-    fs::write(project_path.join("Cargo.toml"), cargo_toml)?;
-    fs::write(project_path.join("eslint.config.js"), ESLINT_CONFIG)?;
-    fs::write(project_path.join("functions.ts"), "")?;
-    fs::write(project_path.join("package.json"), package_json)?;
-    fs::write(project_path.join("NoApi.toml"), config)?;
+    if config.js_runtime == JsRuntime::Deno {
+        fs::write(project_path.join("deno.json"), DENO_JSON)?;
+        fs::write(project_path.join("vite.config.ts"), DENO_VITE_CONFIG)?;
+    } else {
+        fs::write(project_path.join("eslint.config.js"), ESLINT_CONFIG)?;
+        fs::write(project_path.join("package.json"), package_json)?;
+        fs::write(project_path.join("tsconfig.json"), TSCONFIG)?;
+        fs::write(project_path.join("tsconfig.node.json"), TSCONFIG_NODE)?;
+        fs::write(project_path.join("vite.config.ts"), VITE_CONFIG)?;
+    }
     fs::write(project_path.join("tailwind.config.js"), TAILWIND_CONFIG)?;
-    fs::write(project_path.join("tsconfig.json"), TSCONFIG)?;
-    fs::write(project_path.join("tsconfig.node.json"), TSCONFIG_NODE)?;
-    fs::write(project_path.join("vite.config.ts"), VITE_CONFIG)?;
+    fs::write(project_path.join("Cargo.toml"), cargo_toml)?;
+    fs::write(project_path.join(".gitignore"), GITIGNORE)?;
+    fs::write(project_path.join("functions.ts"), "")?;
+    fs::write(project_path.join("NoApi.toml"), config.to_string())?;
+    fs::write(project_path.join("build.rs"), BUILD_RS)?;
 
-    println!("New NoApi project generated at {:?}", project_path);
+    println!(
+        "New NoApi project generated at /{}\n",
+        project_path.to_str().unwrap()
+    );
+    println!(
+        "Now run:\n- cd {}\n- noapi install\n- noapi runserver",
+        project_name
+    );
 
     Ok(())
 }
@@ -287,71 +301,7 @@ const INDEX_HTML: &str = r#"<!DOCTYPE html>
 </html>
 "#;
 
-const INDEX_CSS: &str = r#"@import "tailwindcss";
-
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-}
-  a:hover {
-    color: #747bff;
-}
-  button {
-    background-color: #f9f9f9;
-}
-}
-"#;
+const INDEX_CSS: &str = r#"@import "tailwindcss";"#;
 
 const MAIN_TSX: &str = r#"import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
@@ -362,10 +312,12 @@ import { Routes, Route } from "react-router-dom";
 
 type Module = { default: React.ComponentType };
 
+// @ts-expect-error Unable to infer type at the moment
 const PRESERVED = import.meta.glob("/pages/(_app|404).tsx", {
   eager: true,
 }) as Record<string, Module>;
 
+// @ts-expect-error Unable to infer type at the moment
 const ROUTES = import.meta.glob("/pages/**/[a-z[]*.tsx", {
   eager: true,
 }) as Record<string, Module>;
@@ -387,6 +339,7 @@ const routes = Object.keys(ROUTES).map((route) => {
 
 const AppRoutes = () => {
   const App: React.ComponentType<{ children?: React.ReactNode }> = ({
+  // @ts-expect-error Unable to infer type at the moment
     children,
   }) => {
     return <main>{children}</main>;
@@ -449,7 +402,7 @@ package-lock.json
 
 Bun.lock
 
-Deno.lock
+deno.lock
 "#;
 
 const BUILD_RS: &str = r#"use noapi_functions::build_functions::{
@@ -587,4 +540,58 @@ export default defineConfig({
     },
   },
 });
+"#;
+
+const DENO_VITE_CONFIG: &str = r#"import { defineConfig } from "vite";
+import deno from "@deno/vite-plugin";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import path from "node:path";
+
+// https://vite.dev/config/
+export default defineConfig({
+  // @ts-expect-error Unable to infer type at the moment
+  plugins: [deno(), react(), tailwindcss()],
+  root: "frontend",
+  build: {
+    outDir: "..//src/static",
+    emptyOutDir: true,
+  },
+  resolve: {
+    alias: {
+      "@functions": path.resolve(__dirname, "functions.ts"),
+    },
+  },
+});
+"#;
+
+const DENO_JSON: &str = r#"{
+  "tasks": {
+    "dev": "deno run -A --node-modules-dir npm:vite",
+    "build": "deno run -A --node-modules-dir npm:vite build",
+    "preview": "deno run -A --node-modules-dir npm:vite preview",
+    "serve": "deno run --allow-net --allow-read jsr:@std/http@1/file-server dist/"
+  },
+  "compilerOptions": {
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "jsxImportSourceTypes": "@types/react"
+  },
+  "imports": {
+    "@deno/vite-plugin": "npm:@deno/vite-plugin@^1.0.0",
+    "@types/react": "npm:@types/react@^18.3.12",
+    "@types/react-dom": "npm:@types/react-dom@^18.3.1",
+    "@vitejs/plugin-react": "npm:@vitejs/plugin-react@^4.3.4",
+    "react": "npm:react@^18.3.1",
+    "react-dom": "npm:react-dom@^18.3.1",
+    "vite": "npm:vite@^6.0.1",
+    "@tailwindcss/vite": "npm:@tailwindcss/vite@^4.0.0",
+    "axios": "npm:axios@^1.7.9",
+    "react-router-dom": "npm:react-router-dom@^7.1.5",
+    "globals": "npm:globals@^15.14.0",
+    "tailwindcss": "npm:tailwindcss@^4.0.0",
+    "@types/node": "npm:@types/node@^22.13.0"
+  }
+}
 "#;
