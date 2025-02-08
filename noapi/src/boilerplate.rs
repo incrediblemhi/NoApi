@@ -1,6 +1,6 @@
 use std::{fs, path::Path};
 
-pub fn generate_boilerplate(project_name: &str) -> std::io::Result<()> {
+pub fn generate_boilerplate(project_name: &str, config: String) -> std::io::Result<()> {
     let package_json: &str = &format!(
         r#"{{
   "name": "{}",
@@ -117,7 +117,7 @@ noapi-functions = "0.1.1"
     fs::write(project_path.join("eslint.config.js"), ESLINT_CONFIG)?;
     fs::write(project_path.join("functions.ts"), "")?;
     fs::write(project_path.join("package.json"), package_json)?;
-    fs::write(project_path.join("NoApi.toml"), NOAPI_TOML)?;
+    fs::write(project_path.join("NoApi.toml"), config)?;
     fs::write(project_path.join("tailwind.config.js"), TAILWIND_CONFIG)?;
     fs::write(project_path.join("tsconfig.json"), TSCONFIG)?;
     fs::write(project_path.join("tsconfig.node.json"), TSCONFIG_NODE)?;
@@ -583,8 +583,4 @@ export default defineConfig({
     },
   },
 });
-"#;
-
-const NOAPI_TOML: &str = r#"
-
 "#;
