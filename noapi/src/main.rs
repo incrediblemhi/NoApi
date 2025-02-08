@@ -27,7 +27,7 @@ struct Cli {
 enum Commands {
     New { project_name: String },
     Install,
-    RunServer,
+    Runserver,
 }
 
 fn main() {
@@ -57,7 +57,7 @@ fn main() {
 
             run_install_command(config.package_manager);
         }
-        Commands::RunServer => {
+        Commands::Runserver => {
             if !cargo_check_installed("systemfd") {
                 println!("Installing Systemfd...");
                 cargo_install("systemfd");

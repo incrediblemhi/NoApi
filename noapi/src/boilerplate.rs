@@ -312,12 +312,10 @@ import { Routes, Route } from "react-router-dom";
 
 type Module = { default: React.ComponentType };
 
-// @ts-expect-error Unable to infer type at the moment
 const PRESERVED = import.meta.glob("/pages/(_app|404).tsx", {
   eager: true,
 }) as Record<string, Module>;
 
-// @ts-expect-error Unable to infer type at the moment
 const ROUTES = import.meta.glob("/pages/**/[a-z[]*.tsx", {
   eager: true,
 }) as Record<string, Module>;
@@ -339,7 +337,6 @@ const routes = Object.keys(ROUTES).map((route) => {
 
 const AppRoutes = () => {
   const App: React.ComponentType<{ children?: React.ReactNode }> = ({
-  // @ts-expect-error Unable to infer type at the moment
     children,
   }) => {
     return <main>{children}</main>;
@@ -509,6 +506,7 @@ const TSCONFIG_NODE: &str = r#"{
     "isolatedModules": true,
     "moduleDetection": "force",
     "emitDeclarationOnly": true,
+    "composite": true,
 
     /* Linting */
     "strict": true,
