@@ -219,7 +219,7 @@ const App = () => {
 
   return (
     <main className=" flex flex-row max-sm:flex-col font-sans w-full h-screen">
-      <div className="flex flex-col w-1/2 max-sm:w-full text-center items-center justify-center bg-black">
+      <div className="flex flex-col w-1/2 max-sm:w-full text-center items-center justify-center bg-black text-white">
         <h1 className="text-xl ">What is going on here??</h1>
         <br />
         <p className="w-full max-w-sm min-w-[200px]">
