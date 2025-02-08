@@ -2,7 +2,7 @@
 
 # NoApi
 
-A Rust fullstack web framework [Axum + React], with the concept of Rust server actions, utilizes the type safety of Rust and TypeScript to make calls to server without APIs.
+A Rust fullstack web framework [Axum + React], with the concept of Rust Server Functions(RSFs), utilizes the type safety of Rust and TypeScript to make calls to server without APIs.
 
 ## Features
 
@@ -11,6 +11,8 @@ A Rust fullstack web framework [Axum + React], with the concept of Rust server a
 - **Rust Server Functions** – Call Rust functions directly from the frontend
 - **File-based Routing** – Simple and intuitive route management
 - **Fullstack (TypeScript + React + Rust + Axum)** – Right tool for the right job
+- **Support For Multiple JS Runtimes** - Node, Deno, Bun
+- **Support For Multiple JS Package Managers** - NPM, YARN, PNPM
 
 ## Get Started
 
