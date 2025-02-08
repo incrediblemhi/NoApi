@@ -117,9 +117,8 @@ noapi-functions = "0.1.1"
     fs::write(project_path.join("eslint.config.js"), ESLINT_CONFIG)?;
     fs::write(project_path.join("functions.ts"), "")?;
     fs::write(project_path.join("package.json"), package_json)?;
-    fs::write(project_path.join("README.md"), README)?;
+    fs::write(project_path.join("NoApi.toml"), NOAPI_TOML)?;
     fs::write(project_path.join("tailwind.config.js"), TAILWIND_CONFIG)?;
-    fs::write(project_path.join("tsconfig.app.json"), TSCONFIG_APP)?;
     fs::write(project_path.join("tsconfig.json"), TSCONFIG)?;
     fs::write(project_path.join("tsconfig.node.json"), TSCONFIG_NODE)?;
     fs::write(project_path.join("vite.config.ts"), VITE_CONFIG)?;
@@ -497,11 +496,6 @@ export default tseslint.config(
 );
 "#;
 
-const README: &str = r#"## NoApi Project
-
-This template provides a minimal setup to get started with NoApi.
-"#;
-
 const TAILWIND_CONFIG: &str = r#"module.exports = {
   content: ["./**/*.{ts,tsx}", "./frontend/**/*.{ts,tsx}"],
   theme: {
@@ -511,7 +505,8 @@ const TAILWIND_CONFIG: &str = r#"module.exports = {
 };
 "#;
 
-const TSCONFIG_APP: &str = r#"{
+const TSCONFIG: &str = r#"{
+  "files": [],
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2020",
@@ -538,16 +533,8 @@ const TSCONFIG_APP: &str = r#"{
       "@functions": ["./functions.ts"]
     }
   },
-  "include": ["frontend"]
-}
-"#;
-
-const TSCONFIG: &str = r#"{
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "include": ["frontend"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }
 "#;
 
@@ -564,7 +551,7 @@ const TSCONFIG_NODE: &str = r#"{
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
-    "noEmit": true,
+    "emitDeclarationOnly": true,
 
     /* Linting */
     "strict": true,
@@ -596,4 +583,8 @@ export default defineConfig({
     },
   },
 });
+"#;
+
+const NOAPI_TOML: &str = r#"
+
 "#;

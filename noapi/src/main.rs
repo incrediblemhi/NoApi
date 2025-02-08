@@ -1,23 +1,14 @@
 mod boilerplate;
 mod cargo_commands;
+mod js_commands;
+mod noapi_config;
 
-use cargo_commands::{cargo_build, cargo_doc, cargo_install};
+use cargo_commands::{
+    cargo_build, cargo_check_installed, cargo_doc, cargo_install, is_valid_cargo_name,
+    run_start_command,
+};
 use clap::{arg, Command};
-use regex::Regex;
-use std::{path::Path, process::Command as StdCommand};
-
-#[cfg(windows)]
-const NPM: &str = "npm.cmd";
-#[cfg(not(windows))]
-const NPM: &str = "npm";
-
-const RUST_KEYWORDS: &[&str] = &[
-    "as", "break", "const", "continue", "crate", "else", "enum", "extern", "false", "fn", "for",
-    "if", "impl", "in", "let", "loop", "match", "mod", "move", "mut", "pub", "ref", "return",
-    "self", "Self", "static", "struct", "super", "trait", "true", "type", "unsafe", "use", "where",
-    "while", "async", "await", "dyn", "abstract", "become", "box", "do", "final", "macro",
-    "override", "priv", "try", "typeof", "unsized", "virtual", "yield", "union", "test", "rust",
-];
+use js_commands::npm_install;
 
 fn main() {
     let matches = Command::new("noapi")
@@ -59,11 +50,11 @@ fn main() {
     }
 
     if let Some(_run_matches) = matches.subcommand_matches("install") {
-        if !is_installed("systemfd") {
+        if !cargo_check_installed("systemfd") {
             println!("Installing Systemfd...");
             cargo_install("systemfd");
         }
-        if !is_installed("cargo-watch") {
+        if !cargo_check_installed("cargo-watch") {
             println!("Installing Cargo-watch...");
             cargo_install("cargo-watch");
         }
@@ -71,11 +62,11 @@ fn main() {
     }
 
     if let Some(_run_matches) = matches.subcommand_matches("runserver") {
-        if !is_installed("systemfd") {
+        if !cargo_check_installed("systemfd") {
             println!("Installing Systemfd...");
             cargo_install("systemfd");
         }
-        if !is_installed("cargo-watch") {
+        if !cargo_check_installed("cargo-watch") {
             println!("Installing Cargo-watch...");
             cargo_install("cargo-watch");
         }
@@ -84,73 +75,8 @@ fn main() {
     }
 }
 
-fn is_installed(command: &str) -> bool {
-    StdCommand::new(command)
-        .arg("--version")
-        .output()
-        .map(|output| output.status.success())
-        .unwrap_or(false)
-}
-
-pub fn npm_install() {
-    if !Path::new("/node_modules").exists() {
-        println!("Installing npm packages...");
-        match StdCommand::new(NPM).arg("install").status() {
-            Ok(_status) => {}
-            Err(error) => {
-                eprintln!("{}", error)
-            }
-        };
-    }
-}
-
 pub fn run_install_command() {
     npm_install();
     cargo_build();
     cargo_doc();
-}
-
-pub fn run_start_command() {
-    match StdCommand::new("systemfd")
-        .arg("--no-pid")
-        .arg("-s")
-        .arg("http::3000")
-        .arg("--")
-        .arg("cargo")
-        .arg("watch")
-        .arg("-x")
-        .arg("run")
-        .arg("-i")
-        .arg("src/static")
-        .arg("-i")
-        .arg("node_modules")
-        .arg("-i")
-        .arg("functions.ts")
-        .arg("-i")
-        .arg("src/handlers")
-        .status()
-    {
-        Ok(_status) => {}
-        Err(error) => {
-            eprintln!("{}", error)
-        }
-    };
-}
-
-fn is_valid_cargo_name(name: &str) -> bool {
-    let re = Regex::new(r"^[a-zA-Z_][a-zA-Z0-9_-]*$").unwrap();
-
-    if !re.is_match(name) {
-        return false;
-    }
-
-    if name.chars().next().unwrap().is_numeric() {
-        return false;
-    }
-
-    if RUST_KEYWORDS.contains(&name) {
-        return false;
-    }
-
-    true
 }
