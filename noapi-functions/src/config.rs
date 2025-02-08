@@ -31,13 +31,13 @@ impl Config {
     }
 
     /*fn save_to_file(&self) {
-        let config_path = Path::new("config.toml");
+        let config_path = Path::new("NoApi.toml");
         let toml_str = toml::to_string_pretty(self).expect("Failed to serialize config");
         fs::write(&config_path, toml_str).expect("Failed to write config file");
     }*/
 
     pub fn from_file() -> Result<Self, Box<dyn std::error::Error>> {
-        let config_path = Path::new("config.toml");
+        let config_path = Path::new("NoApi.toml");
         let mut file = fs::File::open(&config_path)?;
         let mut contents = String::new();
         file.read_to_string(&mut contents)?;
