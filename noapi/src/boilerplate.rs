@@ -446,6 +446,10 @@ target
 Cargo.lock
 
 package-lock.json
+
+Bun.lock
+
+Deno.lock
 "#;
 
 const BUILD_RS: &str = r#"use noapi_functions::build_functions::{
