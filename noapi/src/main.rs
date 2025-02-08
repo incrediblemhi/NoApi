@@ -14,7 +14,7 @@ use js_commands::{bun_install, deno_install, npm_install, pnpm_install, yarn_ins
 #[derive(Parser, Debug)]
 #[command(
     name = "noapi",
-    version = "0.1.42",
+    version = "0.1.43",
     author = "Kelvin Osei",
     about = "A Rust fullstack web framework [Axum + React], with the concept of Rust Server Functions(RSFs), utilizes the type safety of Rust and TypeScript to make calls to server without APIs."
 )]

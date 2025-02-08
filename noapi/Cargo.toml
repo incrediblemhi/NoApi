@@ -1,6 +1,6 @@
 [package]
 name = "noapi"
-version = "0.1.42"
+version = "0.1.43"
 edition = "2021"
 documentation = "https://incrediblemhi.github.io/NoApi/"
 authors = ["Kelvin Osei <incrediblemhi2022@gmail.com>"]
