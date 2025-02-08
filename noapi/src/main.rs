@@ -1,15 +1,15 @@
 mod boilerplate;
 mod cargo_commands;
+mod config;
 mod js_commands;
-mod noapi_config;
 
 use cargo_commands::{
     cargo_build, cargo_check_installed, cargo_doc, cargo_install, is_valid_cargo_name,
     run_start_command,
 };
 use clap::{Parser, Subcommand};
+use config::{Config, PackageManager};
 use js_commands::{bun_install, deno_install, npm_install, pnpm_install, yarn_install};
-use noapi_config::{Config, PackageManager};
 
 #[derive(Parser, Debug)]
 #[command(

@@ -1,6 +1,6 @@
 use std::{fs, path::Path};
 
-use crate::noapi_config::{Config, JsRuntime};
+use crate::config::{Config, JsRuntime};
 
 pub fn generate_boilerplate(project_name: &str, config: Config) -> std::io::Result<()> {
     let package_json: &str = &format!(

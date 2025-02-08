@@ -1,15 +1,32 @@
+use crate::{
+    config::{Config, PackageManager},
+    js_commands::{bun_build, deno_build, npm_build, pnpm_build, yarn_build},
+    struct_extractor::extract_struct_def,
+};
 use regex::Regex;
-use std::{fs, io::Write, path::Path, process::Command};
-
-use crate::struct_extractor::extract_struct_def;
-
-#[cfg(windows)]
-const NPM: &str = "npm.cmd";
-#[cfg(not(windows))]
-const NPM: &str = "npm";
+use std::{fs, io::Write, path::Path, process::ExitStatus};
 
 pub fn build_frontend() -> Result<(), Box<dyn std::error::Error>> {
-    let status = Command::new(NPM).arg("run").arg("build").status()?;
+    let package_manager = Config::from_file().unwrap().package_manager;
+    let status: ExitStatus;
+
+    match package_manager {
+        PackageManager::Bun => {
+            status = bun_build()?;
+        }
+        PackageManager::Deno => {
+            status = deno_build()?;
+        }
+        PackageManager::NPM => {
+            status = npm_build()?;
+        }
+        PackageManager::PNPM => {
+            status = pnpm_build()?;
+        }
+        PackageManager::YARN => {
+            status = yarn_build()?;
+        }
+    }
 
     if !status.success() {
         return Err(format!(
