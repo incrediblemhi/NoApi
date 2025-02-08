@@ -14,7 +14,7 @@ use js_commands::{bun_install, deno_install, npm_install, pnpm_install, yarn_ins
 #[derive(Parser, Debug)]
 #[command(
     name = "noapi",
-    version = "0.1.41",
+    version = "0.1.42",
     author = "Kelvin Osei",
     about = "A Rust fullstack web framework [Axum + React], with the concept of Rust Server Functions(RSFs), utilizes the type safety of Rust and TypeScript to make calls to server without APIs."
 )]
@@ -91,7 +91,6 @@ pub fn run_install_command(js_package_manager: PackageManager) {
             yarn_install();
         }
     }
-    npm_install();
     cargo_build();
     cargo_doc();
 }

@@ -63,7 +63,7 @@ tracing = "0.1.41"
 tracing-subscriber = {{version = "0.3.19", features = ["env-filter"]}}
 
 [build-dependencies]
-noapi-functions = "0.1.1"
+noapi-functions = "0.1.41"
 "#,
         project_name
     );
