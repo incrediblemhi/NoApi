@@ -1,9 +1,6 @@
-[workspace]
+[package]
+name = "noapi"
+version = "0.1.0"
+edition = "2024"
 
-members = [
-    "noapi",
-    "noapi-functions",
-    "template",
-]
-
-resolver = "2"
+[dependencies]
